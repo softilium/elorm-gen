@@ -1,0 +1,187 @@
+{{ define "dbcontext" }}
+// THIS IS GENERATED CODE. DO NOT MODIFY IT
+package {{.GoPackageName}}
+
+import (
+	"github.com/softilium/elorm"
+	"time"
+)
+
+{{ range .Entities }}
+
+// {{.ObjectName}} class
+//////
+
+type {{ .ObjectName }} struct {
+	*elorm.Entity
+}
+
+{{ range .Columns}}
+
+{{ if .IsString }}
+func (T *{{.Owner.ObjectName}}) {{.Name}}() string {	
+	r, err := T.Values["{{.Name}}"].Get()
+	if err!=nil {
+		panic(err)
+	}
+	return r.(string) 
+}
+
+func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue string) { 
+	err := T.Values["{{.Name}}"].Set(newValue) 
+	if err!=nil {
+		panic(err)
+	}
+}
+{{ end }}
+
+{{ if .IsRef }}
+func (T *{{.Owner.ObjectName}}) {{.Name}}() *{{.RefTypeName}} {	
+	r,err := T.Values["{{.Name}}"].Get()
+	if err!=nil {
+		panic(err)
+	}
+	return r.(*{{.RefTypeName}}) 
+}
+
+func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue *{{.RefTypeName}}) { 
+	err := T.Values["{{.Name}}"].Set(newValue) 
+	if (err!=nil) {
+		panic(err)
+	}
+}
+{{ end }}
+
+{{ if .IsBool }}
+func (T *{{.Owner.ObjectName}}) {{.Name}}() bool {	
+	r, err := T.Values["{{.Name}}"].Get()
+	if err!=nil {
+		panic(err)
+	}
+	return r.(bool) 
+}
+
+func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue bool) { 
+	err := T.Values["{{.Name}}"].Set(newValue) 
+	if err!=nil {
+		panic(err)
+	}
+}
+{{ end }}
+
+{{ if .IsInt }}
+func (T *{{.Owner.ObjectName}}) {{.Name}}() int64 {	
+	r, err := T.Values["{{.Name}}"].Get()
+	if err!=nil {
+		panic(err)
+	}
+	return r.(int64) 
+}
+
+func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue int64) { 
+	err := T.Values["{{.Name}}"].Set(newValue) 
+	if err!=nil {
+		panic(err)
+	}
+}
+{{ end }}
+
+{{ if .IsNumeric }}
+func (T *{{.Owner.ObjectName}}) {{.Name}}() float64 {	
+	r, err := T.Values["{{.Name}}"].Get()
+	if err!=nil {
+		panic(err)
+	}
+	return r.(float64) 
+}
+
+func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue float64) { 
+	err := T.Values["{{.Name}}"].Set(newValue) 
+	if err!=nil {
+		panic(err)
+	}
+}
+{{ end }}
+
+{{ if .IsDateTime }}
+func (T *{{.Owner.ObjectName}}) {{.Name}}() time.Time {	
+	r, err := T.Values["{{.Name}}"].Get()
+	if err!=nil {
+		panic(err)
+	}
+	return r.(time.Time) 
+}
+
+func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue time.Time) { 
+	err := T.Values["{{.Name}}"].Set(newValue) 
+	if err!=nil {
+		panic(err)
+	}
+}
+{{ end }}
+
+{{ end }}
+
+{{ end }}
+
+// DbContext core
+//////
+
+type DbContext struct {
+	*elorm.Factory{{ range .Entities }}
+{{ .ObjectName}}Def *elorm.EntityDef{{ end }}
+}
+
+func CreateDbContext(dbDialect string, connectionString string) (*DbContext, error) {
+
+	var err error
+	r := &DbContext{}
+	r.Factory, err = elorm.CreateFactory(dbDialect, connectionString)
+	if err != nil {
+		return nil, err
+	}
+
+{{ range .Entities }}
+
+	// {{.ObjectName}}
+	////// 
+
+	r.{{.ObjectName}}Def, err = r.CreateEntityDef("{{.ObjectName}}","{{.TableName}}")
+	if err != nil {
+		return nil, err
+	}{{ range .Columns }}
+	{{ if .IsString }}r.{{.Owner.ObjectName}}Def.AddStringFieldDef("{{.Name}}", {{.Len}}, ""){{ end }}
+	{{ if .IsRef }}r.{{.Owner.ObjectName}}Def.AddRefFieldDef("{{.Name}}", r.{{.RefTypeName}}Def){{ end }}
+	{{ if .IsBool }}r.{{.Owner.ObjectName}}Def.AddBoolFieldDef("{{.Name}}", false){{ end }}
+	{{ if .IsInt }}r.{{.Owner.ObjectName}}Def.AddIntFieldDef("{{.Name}}", 0){{ end }}
+	{{ if .IsNumeric }}r.{{.Owner.ObjectName}}Def.AddNumericFieldDef("{{.Name}}", {{.Precision}},{{.Scale}}, 0){{ end }}
+	{{ if .IsDateTime }}r.{{.Owner.ObjectName}}Def.AddDateTimeFieldDef("{{.Name}}"){{ end }}
+	{{ end }}
+
+	r.{{.ObjectName}}Def.Wrap = func(source *elorm.Entity) any { return &{{.ObjectName}}{Entity: source} }
+{{ end }}
+
+	return r, nil
+}
+
+{{ range .Entities }}
+
+func (T *DbContext) Create{{.ObjectName}}() (*{{.ObjectName}}, error) {
+	r, err := T.CreateEntityWrapped(T.{{.ObjectName}}Def)
+	if err != nil {
+		return nil, err
+	}
+	return r.(*{{.ObjectName}}), nil
+}
+
+func (T *DbContext) Load{{.ObjectName}}(Ref string) (*{{.ObjectName}}, error) {
+	r, err := T.LoadEntityWrapped(Ref)
+	if err != nil {
+		return nil, err
+	}
+	return r.(*{{.ObjectName}}), nil
+}
+
+{{ end }}
+
+{{ end }}

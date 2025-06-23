@@ -1,0 +1,73 @@
+{
+  "$id": "https://github.com/softilium/elorm-gen/elorm.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Elorm Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "Entities",
+    "PackageName"
+  ],
+  "properties": {
+    "PackageName": {
+      "type": "string"
+    },
+    "Entities": {
+      "type": "array",
+      "description": "List of entities",
+      "items": {
+        "$ref": "#/$defs/Entity"
+      }
+    }
+  },
+  "$defs": {
+    "Entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ObjectName",
+        "TableName",
+        "Columns"
+      ],
+      "properties": {
+        "ObjectName": {
+          "type": "string"
+        },
+        "TableName": {
+          "type": "string"
+        },
+        "Columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityColumn"
+          }
+        }
+      }
+    },
+    "entityColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Name",
+        "ColumnType"
+      ],
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "ColumnType": {
+          "type": "string"
+        },
+        "Len": {
+          "type": "number"
+        },
+        "Precision": {
+          "type": "number"
+        },
+        "Scale": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}
