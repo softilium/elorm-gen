@@ -12,6 +12,17 @@ import (
 // {{.ObjectName}} class
 //////
 
+type {{ .ObjectName }}DefStruct struct {
+	*elorm.EntityDef
+	Ref         *elorm.FieldDef
+	IsDeleted   *elorm.FieldDef
+	DataVersion *elorm.FieldDef
+	{{ range .Columns}}
+	{{ .Name }} *elorm.FieldDef 
+	{{ end }}
+
+}
+
 type {{ .ObjectName }} struct {
 	*elorm.Entity
 }
@@ -129,7 +140,7 @@ func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue time.Time) {
 
 type DbContext struct {
 	*elorm.Factory{{ range .Entities }}
-{{ .ObjectName}}Def *elorm.EntityDef{{ end }}
+{{ .ObjectName}}Def {{.ObjectName}}DefStruct{{ end }}
 }
 
 func CreateDbContext(dbDialect string, connectionString string) (*DbContext, error) {
@@ -146,17 +157,15 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 	// {{.ObjectName}}
 	////// 
 
-	r.{{.ObjectName}}Def, err = r.CreateEntityDef("{{.ObjectName}}","{{.TableName}}")
+	r.{{.ObjectName}}Def.EntityDef, err = r.CreateEntityDef("{{.ObjectName}}","{{.TableName}}")
 	if err != nil {
 		return nil, err
-	}{{ range .Columns }}
-	{{ if .IsString }}r.{{.Owner.ObjectName}}Def.AddStringFieldDef("{{.Name}}", {{.Len}}, ""){{ end }}
-	{{ if .IsRef }}r.{{.Owner.ObjectName}}Def.AddRefFieldDef("{{.Name}}", r.{{.RefTypeName}}Def){{ end }}
-	{{ if .IsBool }}r.{{.Owner.ObjectName}}Def.AddBoolFieldDef("{{.Name}}", false){{ end }}
-	{{ if .IsInt }}r.{{.Owner.ObjectName}}Def.AddIntFieldDef("{{.Name}}", 0){{ end }}
-	{{ if .IsNumeric }}r.{{.Owner.ObjectName}}Def.AddNumericFieldDef("{{.Name}}", {{.Precision}},{{.Scale}}, 0){{ end }}
-	{{ if .IsDateTime }}r.{{.Owner.ObjectName}}Def.AddDateTimeFieldDef("{{.Name}}"){{ end }}
-	{{ end }}
+	}
+	r.{{ .ObjectName }}Def.Ref = r.{{ .ObjectName }}Def.FieldDefByName("Ref")
+	r.{{ .ObjectName }}Def.IsDeleted = r.{{ .ObjectName }}Def.FieldDefByName("IsDeleted")
+	r.{{ .ObjectName }}Def.DataVersion = r.{{ .ObjectName }}Def.FieldDefByName("DataVersion")
+	{{ range .Columns }}
+	r.{{.Owner.ObjectName}}Def.{{.Name}}, _ ={{ if .IsString }}r.{{.Owner.ObjectName}}Def.AddStringFieldDef("{{.Name}}", {{.Len}}, ""){{ end }}{{ if .IsRef }}r.{{.Owner.ObjectName}}Def.AddRefFieldDef("{{.Name}}", r.{{.RefTypeName}}Def.EntityDef){{ end }}{{ if .IsBool }}r.{{.Owner.ObjectName}}Def.AddBoolFieldDef("{{.Name}}", false){{ end }}{{ if .IsInt }}r.{{.Owner.ObjectName}}Def.AddIntFieldDef("{{.Name}}", 0){{ end }}{{ if .IsNumeric }}r.{{.Owner.ObjectName}}Def.AddNumericFieldDef("{{.Name}}", {{.Precision}},{{.Scale}}, 0){{ end }}{{ if .IsDateTime }}r.{{.Owner.ObjectName}}Def.AddDateTimeFieldDef("{{.Name}}"){{ end }}{{ end }}
 
 	r.{{.ObjectName}}Def.Wrap = func(source *elorm.Entity) any { return &{{.ObjectName}}{Entity: source} }
 {{ end }}
@@ -167,7 +176,7 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 {{ range .Entities }}
 
 func (T *DbContext) Create{{.ObjectName}}() (*{{.ObjectName}}, error) {
-	r, err := T.CreateEntityWrapped(T.{{.ObjectName}}Def)
+	r, err := T.CreateEntityWrapped(T.{{.ObjectName}}Def.EntityDef)
 	if err != nil {
 		return nil, err
 	}
