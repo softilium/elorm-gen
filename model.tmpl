@@ -36,21 +36,14 @@ func (T *{{.Owner.ObjectName}}) {{.Name}}() string {
 	if T.field_{{.Name}} == nil {
 		T.field_{{.Name}} = T.Values["{{.Name}}"].(*elorm.FieldValueString)
 	}
-	r, err := T.field_{{.Name}}.Get()
-	if err!=nil {
-		panic(err)
-	}
-	return r.(string) 
+	return T.field_{{.Name}}.Get()
 }
 
 func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue string) { 
 	if T.field_{{.Name}} == nil {
 		T.field_{{.Name}} = T.Values["{{.Name}}"].(*elorm.FieldValueString)
 	}
-	err := T.field_{{.Name}}.Set(newValue) 
-	if err!=nil {
-		panic(err)
-	}
+	T.field_{{.Name}}.Set(newValue) 
 }
 {{ end }}
 
@@ -82,21 +75,14 @@ func (T *{{.Owner.ObjectName}}) {{.Name}}() bool {
 	if T.field_{{.Name}} == nil {
 		T.field_{{.Name}} = T.Values["{{.Name}}"].(*elorm.FieldValueBool)
 	}
-	r, err := T.field_{{.Name}}.Get()
-	if err!=nil {
-		panic(err)
-	}
-	return r.(bool) 
+	return T.field_{{.Name}}.Get()
 }
 
 func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue bool) { 
 	if T.field_{{.Name}} == nil {
 		T.field_{{.Name}} = T.Values["{{.Name}}"].(*elorm.FieldValueBool)
 	}
-	err := T.field_{{.Name}}.Set(newValue) 
-	if err!=nil {
-		panic(err)
-	}
+	T.field_{{.Name}}.Set(newValue) 
 }
 {{ end }}
 
@@ -105,21 +91,14 @@ func (T *{{.Owner.ObjectName}}) {{.Name}}() int64 {
 	if T.field_{{.Name}} == nil {
 		T.field_{{.Name}} = T.Values["{{.Name}}"].(*elorm.FieldValueInt)
 	}
-	r, err := T.field_{{.Name}}.Get()
-	if err!=nil {
-		panic(err)
-	}
-	return r.(int64) 
+	return T.field_{{.Name}}.Get()
 }
 
 func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue int64) { 
 	if T.field_{{.Name}} == nil {
 		T.field_{{.Name}} = T.Values["{{.Name}}"].(*elorm.FieldValueInt)
 	}
-	err := T.field_{{.Name}}.Set(newValue) 
-	if err!=nil {
-		panic(err)
-	}
+	T.field_{{.Name}}.Set(newValue) 
 }
 {{ end }}
 
@@ -128,21 +107,14 @@ func (T *{{.Owner.ObjectName}}) {{.Name}}() float64 {
 	if T.field_{{.Name}} == nil {
 		T.field_{{.Name}} = T.Values["{{.Name}}"].(*elorm.FieldValueNumeric)
 	}
-	r, err := T.field_{{.Name}}.Get()
-	if err!=nil {
-		panic(err)
-	}
-	return r.(float64) 
+	return T.field_{{.Name}}.Get()
 }
 
 func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue float64) { 
 	if T.field_{{.Name}} == nil {
 		T.field_{{.Name}} = T.Values["{{.Name}}"].(*elorm.FieldValueNumeric)
 	}
-	err := T.field_{{.Name}}.Set(newValue) 
-	if err!=nil {
-		panic(err)
-	}
+	T.field_{{.Name}}.Set(newValue) 
 }
 {{ end }}
 
@@ -151,21 +123,14 @@ func (T *{{.Owner.ObjectName}}) {{.Name}}() time.Time {
 	if T.field_{{.Name}} == nil {
 		T.field_{{.Name}} = T.Values["{{.Name}}"].(*elorm.FieldValueDateTime)
 	}
-	r, err := T.field_{{.Name}}.Get()
-	if err!=nil {
-		panic(err)
-	}
-	return r.(time.Time) 
+	return T.field_{{.Name}}.Get()
 }
 
 func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue time.Time) { 
 	if T.field_{{.Name}} == nil {
 		T.field_{{.Name}} = T.Values["{{.Name}}"].(*elorm.FieldValueDateTime)
 	}
-	err := T.field_{{.Name}}.Set(newValue) 
-	if err!=nil {
-		panic(err)
-	}
+	T.field_{{.Name}}.Set(newValue) 
 }
 {{ end }}
 
