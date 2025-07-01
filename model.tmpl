@@ -23,6 +23,27 @@ type {{ .ObjectName }}DefStruct struct {
 
 }
 
+func (T *{{.ObjectName}}DefStruct) SelectEntities(filters []*elorm.Filter, sorts []*elorm.SortItem, pageNo int, pageSize int) (result []*{{.ObjectName}}, pages int, err error) {
+
+	res, total, err := T.EntityDef.SelectEntities(filters, sorts, pageNo, pageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	res2 := make([]*{{.ObjectName}}, 0, len(res))
+
+	for _, r := range res {
+		if r == nil {
+			continue
+		}
+		rt := T.Wrap(r)
+		res2 = append(res2, rt.(*{{.ObjectName}}))
+	}
+
+	return res2, total, nil
+	
+}
+
 type {{ .ObjectName }} struct {
 	*elorm.Entity
 	{{ range .Columns }}
