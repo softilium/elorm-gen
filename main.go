@@ -112,6 +112,16 @@ func main() {
 
 			if col.IsRef {
 				col.RefTypeName = strings.TrimPrefix(col.ColumnType, "ref.")
+				found := false
+				for _, ent2 := range ctx.Entities {
+					if ent2.ObjectName == col.RefTypeName {
+						found = true
+						break
+					}
+				}
+				if !found {
+					panic(fmt.Sprintf("Unable to find entity %s for ref field %s in entity %s\n\r", col.RefTypeName, col.Name, ent.ObjectName))
+				}
 			}
 
 			if col.IsString && (col.Len < 1 || col.Len > 512) {
