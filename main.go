@@ -61,7 +61,6 @@ var args struct {
 	Package      string `arg:"-p,--package"`
 	InputJson    string `arg:"positional,required"`
 	OutputGolang string `arg:"positional,required"`
-	Bar          bool
 }
 
 func main() {
