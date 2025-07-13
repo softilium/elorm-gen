@@ -18,6 +18,13 @@
       "items": {
         "$ref": "#/$defs/Entity"
       }
+    },
+    "Fragments": {
+      "type": "array",
+      "description": "List of fragments",
+      "items": {
+        "$ref": "#/$defs/Fragment"
+      }
     }
   },
   "$defs": {
@@ -34,6 +41,30 @@
           "type": "string"
         },
         "TableName": {
+          "type": "string"
+        },
+        "Fragments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityColumn"
+          }
+        }
+      }
+    },
+    "Fragment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "FragmentName"
+      ],
+      "properties": {
+        "FragmentName": {
           "type": "string"
         },
         "Columns": {

@@ -8,6 +8,7 @@ import (
 	"go/format"
 	"log"
 	"os"
+	"slices"
 	"strings"
 	"text/template"
 
@@ -18,12 +19,19 @@ import (
 type Context struct {
 	GoPackageName string
 	Entities      []*Entity
+	Fragments     []*Fragment
+}
+
+type Fragment struct {
+	FragmentName string
+	Columns      []*EntityColumn
 }
 
 type Entity struct {
 	Owner      *Context
 	ObjectName string
 	TableName  string
+	Fragments  []string
 	Columns    []*EntityColumn
 }
 
@@ -95,39 +103,40 @@ func main() {
 	// set owners, flags
 	for _, ent := range ctx.Entities {
 		ent.Owner = &ctx
-		for _, col := range ent.Columns {
-			col.Owner = ent
+		for _, fragName := range ent.Fragments {
+			found := false
+			for _, frag := range ctx.Fragments {
+				if frag.FragmentName == fragName {
+					found = true
+					for _, col := range frag.Columns {
 
-			col.IsString = col.ColumnType == "string"
-			col.IsRef = strings.HasPrefix(col.ColumnType, "ref.")
-			col.IsNumeric = col.ColumnType == "numeric"
-			col.IsDateTime = col.ColumnType == "datetime"
-			col.IsBool = col.ColumnType == "bool"
-			col.IsInt = col.ColumnType == "int"
-
-			if !col.IsString && !col.IsRef && !col.IsNumeric && !col.IsDateTime && !col.IsInt && !col.IsBool {
-				panic(fmt.Sprintf("Unable to determine field type (allowed: string, ref.*, numeric, datetime, bool, int). Entity %s, field %s\n\r", ent.ObjectName, col.Name))
-			}
-
-			if col.IsRef {
-				col.RefTypeName = strings.TrimPrefix(col.ColumnType, "ref.")
-				found := false
-				for _, ent2 := range ctx.Entities {
-					if ent2.ObjectName == col.RefTypeName {
-						found = true
-						break
+						if slices.ContainsFunc(ent.Columns, func(c *EntityColumn) bool { return c.Name == col.Name }) {
+							panic(fmt.Sprintf("Column %s already exists in entity %s while adding fragment %s \n", col.Name, ent.ObjectName, fragName))
+						}
+						colCopy := *col
+						colCopy2 := colCopy
+						ent.Columns = append(ent.Columns, &colCopy2)
 					}
-				}
-				if !found {
-					panic(fmt.Sprintf("Unable to find entity %s for ref field %s in entity %s\n\r", col.RefTypeName, col.Name, ent.ObjectName))
+					break
 				}
 			}
-
-			if col.IsString && (col.Len < 1 || col.Len > 512) {
-				panic(fmt.Sprintf("Len for string field %s should be in 1.512. Entity name %s\n\r", col.Name, ent.ObjectName))
+			if !found {
+				panic(fmt.Sprintf("Unable to find fragment %s for entity %s\n\r", fragName, ent.ObjectName))
 			}
 		}
+		for _, col := range ent.Columns {
+			enrichCol(col, ent, ctx)
+		}
 	}
+
+	slices.SortFunc(ctx.Entities, func(a, b *Entity) int {
+		if a.ObjectName < b.ObjectName {
+			return -1
+		} else if a.ObjectName > b.ObjectName {
+			return 1
+		}
+		return 0
+	})
 
 	modelTmpl, err := template.New("model").Parse(ModelSrc)
 	checkErr(err)
@@ -148,4 +157,37 @@ func main() {
 
 	_, err = f.Write(p)
 	checkErr(err)
+}
+
+func enrichCol(col *EntityColumn, ent *Entity, ctx Context) {
+	col.Owner = ent
+
+	col.IsString = col.ColumnType == "string"
+	col.IsRef = strings.HasPrefix(col.ColumnType, "ref.")
+	col.IsNumeric = col.ColumnType == "numeric"
+	col.IsDateTime = col.ColumnType == "datetime"
+	col.IsBool = col.ColumnType == "bool"
+	col.IsInt = col.ColumnType == "int"
+
+	if !col.IsString && !col.IsRef && !col.IsNumeric && !col.IsDateTime && !col.IsInt && !col.IsBool {
+		panic(fmt.Sprintf("Unable to determine field type (allowed: string, ref.*, numeric, datetime, bool, int). Entity %s, field %s\n\r", ent.ObjectName, col.Name))
+	}
+
+	if col.IsRef {
+		col.RefTypeName = strings.TrimPrefix(col.ColumnType, "ref.")
+		found := false
+		for _, ent2 := range ctx.Entities {
+			if ent2.ObjectName == col.RefTypeName {
+				found = true
+				break
+			}
+		}
+		if !found {
+			panic(fmt.Sprintf("Unable to find entity %s for ref field %s in entity %s\n\r", col.RefTypeName, col.Name, ent.ObjectName))
+		}
+	}
+
+	if col.IsString && (col.Len < 1 || col.Len > 512) {
+		panic(fmt.Sprintf("Len for string field %s should be in 1.512. Entity name %s\n\r", col.Name, ent.ObjectName))
+	}
 }

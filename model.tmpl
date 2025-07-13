@@ -178,13 +178,18 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 
 {{ range .Entities }}
 
-	// {{.ObjectName}}
-	////// 
-
 	r.{{.ObjectName}}Def.EntityDef, err = r.CreateEntityDef("{{.ObjectName}}","{{.TableName}}")
 	if err != nil {
 		return nil, err
 	}
+
+{{ end }}
+
+{{ range .Entities }}
+
+	// {{.ObjectName}}
+	////// 
+
 	r.{{ .ObjectName }}Def.Ref = r.{{ .ObjectName }}Def.FieldDefByName("Ref")
 	r.{{ .ObjectName }}Def.IsDeleted = r.{{ .ObjectName }}Def.FieldDefByName("IsDeleted")
 	r.{{ .ObjectName }}Def.DataVersion = r.{{ .ObjectName }}Def.FieldDefByName("DataVersion")
