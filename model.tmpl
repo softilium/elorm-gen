@@ -170,6 +170,7 @@ type DbContext struct {
 func CreateDbContext(dbDialect string, connectionString string) (*DbContext, error) {
 
 	var err error
+	frg := []string{}
 	r := &DbContext{}
 	r.Factory, err = elorm.CreateFactory(dbDialect, connectionString)
 	if err != nil {
@@ -182,6 +183,15 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 	if err != nil {
 		return nil, err
 	}
+
+	{{ if .Fragments }}
+		r.{{.ObjectName}}Def.EntityDef.Fragments = make([]string, 0)
+		frg = []string{}
+		{{ range .Fragments }}
+			frg = append(frg, "{{.}}")
+		{{ end }}
+		r.{{.ObjectName}}Def.EntityDef.Fragments = frg
+	{{ end }}
 
 {{ end }}
 
