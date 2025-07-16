@@ -185,28 +185,38 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 	}
 
 	{{ if .Fragments }}
-		r.{{.ObjectName}}Def.EntityDef.Fragments = make([]string, 0)
+		r.{{.ObjectName}}Def.Fragments = make([]string, 0)
 		frg = []string{}
 		{{ range .Fragments }}
 			frg = append(frg, "{{.}}")
 		{{ end }}
-		r.{{.ObjectName}}Def.EntityDef.Fragments = frg
+		r.{{.ObjectName}}Def.Fragments = frg
 	{{ end }}
 
 {{ end }}
 
-{{ range .Entities }}
+{{ range $k, $e := .Entities }}
 
 	// {{.ObjectName}}
 	////// 
 
-	r.{{ .ObjectName }}Def.Ref = r.{{ .ObjectName }}Def.FieldDefByName("Ref")
-	r.{{ .ObjectName }}Def.IsDeleted = r.{{ .ObjectName }}Def.FieldDefByName("IsDeleted")
-	r.{{ .ObjectName }}Def.DataVersion = r.{{ .ObjectName }}Def.FieldDefByName("DataVersion")
+	r.{{ $e.ObjectName }}Def.Ref = r.{{ .ObjectName }}Def.FieldDefByName("Ref")
+	r.{{ $e.ObjectName }}Def.IsDeleted = r.{{ .ObjectName }}Def.FieldDefByName("IsDeleted")
+	r.{{ $e.ObjectName }}Def.DataVersion = r.{{ .ObjectName }}Def.FieldDefByName("DataVersion")
 	{{ range .Columns }}
-	r.{{.Owner.ObjectName}}Def.{{.Name}}, _ ={{ if .IsString }}r.{{.Owner.ObjectName}}Def.AddStringFieldDef("{{.Name}}", {{.Len}}, ""){{ end }}{{ if .IsRef }}r.{{.Owner.ObjectName}}Def.AddRefFieldDef("{{.Name}}", r.{{.RefTypeName}}Def.EntityDef){{ end }}{{ if .IsBool }}r.{{.Owner.ObjectName}}Def.AddBoolFieldDef("{{.Name}}", false){{ end }}{{ if .IsInt }}r.{{.Owner.ObjectName}}Def.AddIntFieldDef("{{.Name}}", 0){{ end }}{{ if .IsNumeric }}r.{{.Owner.ObjectName}}Def.AddNumericFieldDef("{{.Name}}", {{.Precision}},{{.Scale}}, 0){{ end }}{{ if .IsDateTime }}r.{{.Owner.ObjectName}}Def.AddDateTimeFieldDef("{{.Name}}"){{ end }}{{ end }}
+	r.{{ $e.ObjectName}}Def.{{.Name}}, _ ={{ if .IsString }}r.{{ $e.ObjectName}}Def.AddStringFieldDef("{{.Name}}", {{.Len}}, ""){{ end }}{{ if .IsRef }}r.{{ $e.ObjectName}}Def.AddRefFieldDef("{{.Name}}", r.{{.RefTypeName}}Def.EntityDef){{ end }}{{ if .IsBool }}r.{{.Owner.ObjectName}}Def.AddBoolFieldDef("{{.Name}}", false){{ end }}{{ if .IsInt }}r.{{.Owner.ObjectName}}Def.AddIntFieldDef("{{.Name}}", 0){{end}}{{if .IsNumeric}}r.{{$e.ObjectName}}Def.AddNumericFieldDef("{{.Name}}", {{.Precision}},{{.Scale}}, 0){{end}}{{if .IsDateTime}}r.{{$e.ObjectName}}Def.AddDateTimeFieldDef("{{.Name}}"){{end}}{{end}}
 
 	r.{{.ObjectName}}Def.Wrap = func(source *elorm.Entity) any { return &{{.ObjectName}}{Entity: source} }
+
+	{{ range .Indexes }}
+		err = r.{{$e.ObjectName}}Def.AddIndex({{.Unique}},
+		 {{ range .Columns }}*r.{{$e.ObjectName}}Def.{{.}},{{ end}}
+		)
+		if err != nil {
+			return nil, err
+		}
+	{{ end }}
+
 {{ end }}
 
 	return r, nil

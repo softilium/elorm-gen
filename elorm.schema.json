@@ -28,6 +28,29 @@
     }
   },
   "$defs": {
+    "Index": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Unique",
+        "Columns"
+      ],
+      "properties": {
+        "Unique": {
+          "type": "boolean"
+        },
+        "Columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "IsUnique": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
     "Entity": {
       "type": "object",
       "additionalProperties": false,
@@ -54,6 +77,12 @@
           "items": {
             "$ref": "#/$defs/entityColumn"
           }
+        },
+        "Indexes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Index"
+          }
         }
       }
     },
@@ -71,6 +100,12 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/entityColumn"
+          }
+        },
+        "Indexes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Index"
           }
         }
       }

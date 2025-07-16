@@ -16,6 +16,11 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
 
+type Index struct {
+	Unique  bool
+	Columns []string
+}
+
 type Context struct {
 	GoPackageName string
 	Entities      []*Entity
@@ -25,6 +30,7 @@ type Context struct {
 type Fragment struct {
 	FragmentName string
 	Columns      []*EntityColumn
+	Indexes      []*Index
 }
 
 type Entity struct {
@@ -33,6 +39,7 @@ type Entity struct {
 	TableName  string
 	Fragments  []string
 	Columns    []*EntityColumn
+	Indexes    []*Index
 }
 
 type EntityColumn struct {
@@ -117,6 +124,13 @@ func main() {
 						colCopy2 := colCopy
 						ent.Columns = append(ent.Columns, &colCopy2)
 					}
+
+					for _, idx := range frag.Indexes {
+						idxCopy := *idx
+						idxCopy2 := idxCopy
+						ent.Indexes = append(ent.Indexes, &idxCopy2)
+					}
+
 					break
 				}
 			}
