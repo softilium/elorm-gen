@@ -22,9 +22,10 @@ type Index struct {
 }
 
 type Context struct {
-	GoPackageName string
-	Entities      []*Entity
-	Fragments     []*Fragment
+	PackageName string
+	Entities    []*Entity
+	Fragments   []*Fragment
+	TimeIsUsed  bool //flag to indicate if time package is used (assigned from code)
 }
 
 type Fragment struct {
@@ -82,10 +83,6 @@ func main() {
 
 	arg.MustParse(&args)
 
-	if args.Package == "" {
-		args.Package = "main"
-	}
-
 	sch, err := jsonschema.CompileString("", SchemaSrc)
 	checkErr(err)
 
@@ -104,8 +101,15 @@ func main() {
 	var ctx Context
 	err = json.Unmarshal(data, &ctx)
 	checkErr(err)
+	ctx.TimeIsUsed = false
 
-	ctx.GoPackageName = args.Package
+	if args.Package != "" {
+		ctx.PackageName = args.Package
+	}
+
+	if ctx.PackageName == "" {
+		ctx.PackageName = "main"
+	}
 
 	// set owners, flags
 	for _, ent := range ctx.Entities {
@@ -139,7 +143,7 @@ func main() {
 			}
 		}
 		for _, col := range ent.Columns {
-			enrichCol(col, ent, ctx)
+			enrichCol(col, ent, &ctx)
 		}
 	}
 
@@ -173,7 +177,7 @@ func main() {
 	checkErr(err)
 }
 
-func enrichCol(col *EntityColumn, ent *Entity, ctx Context) {
+func enrichCol(col *EntityColumn, ent *Entity, ctx *Context) {
 	col.Owner = ent
 
 	col.IsString = col.ColumnType == "string"
@@ -182,6 +186,10 @@ func enrichCol(col *EntityColumn, ent *Entity, ctx Context) {
 	col.IsDateTime = col.ColumnType == "datetime"
 	col.IsBool = col.ColumnType == "bool"
 	col.IsInt = col.ColumnType == "int"
+
+	if col.IsDateTime {
+		ctx.TimeIsUsed = ctx.TimeIsUsed || col.IsDateTime
+	}
 
 	if !col.IsString && !col.IsRef && !col.IsNumeric && !col.IsDateTime && !col.IsInt && !col.IsBool {
 		panic(fmt.Sprintf("Unable to determine field type (allowed: string, ref.*, numeric, datetime, bool, int). Entity %s, field %s\n\r", ent.ObjectName, col.Name))

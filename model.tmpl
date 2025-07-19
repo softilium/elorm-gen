@@ -1,10 +1,10 @@
 {{ define "dbcontext" }}
 // THIS IS GENERATED CODE. DO NOT MODIFY IT
-package {{.GoPackageName}}
+package {{.PackageName}}
 
 import (
 	"github.com/softilium/elorm"
-	"time"
+	{{ if .TimeIsUsed }}"time"{{ end }}
 )
 
 {{ range .Entities }}
@@ -171,6 +171,8 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 
 	var err error
 	frg := []string{}
+	_ = frg // to avoid unused variable error if no fragments are defined
+	
 	r := &DbContext{}
 	r.Factory, err = elorm.CreateFactory(dbDialect, connectionString)
 	if err != nil {
