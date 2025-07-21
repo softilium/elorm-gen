@@ -111,6 +111,14 @@ func main() {
 		ctx.PackageName = "main"
 	}
 
+	for _, frg := range ctx.Fragments {
+		for _, col := range frg.Columns {
+			enrichCol(col, nil, &ctx)
+		}
+	}
+
+	ctx.TimeIsUsed = false // clear flag, it will be set later if needed
+
 	// set owners, flags
 	for _, ent := range ctx.Entities {
 		ent.Owner = &ctx

@@ -159,6 +159,45 @@ func (T *{{.Owner.ObjectName}}) Set{{.Name}}(newValue time.Time) {
 
 {{ end }}
 
+{{ range .Fragments }}
+
+	// {{ .FragmentName}} fragment
+
+	const {{ .FragmentName }}Fragment = "{{ .FragmentName }}"
+
+	type {{.FragmentName}}FragmentMethods interface{
+		IsDeleted() bool
+		SetIsDeleted(newValue bool)
+		{{ range .Columns }}
+			{{ if .IsString }}
+				{{.Name}}() string
+					Set{{.Name}}(newValue string)
+				{{ end }}
+			{{ if .IsRef }}
+				{{.Name}}() *{{.RefTypeName}}
+				Set{{.Name}}(newValue *{{.RefTypeName}})
+			{{ end }}
+			{{ if .IsBool }}
+				{{.Name}}() bool
+				Set{{.Name}}(newValue bool)
+			{{ end }}
+			{{ if .IsInt }}
+				{{.Name}}() int64
+				Set{{.Name}}(newValue int64)
+			{{ end }}
+			{{ if .IsNumeric }}
+				{{.Name}}() float64
+				Set{{.Name}}(newValue float64)
+			{{ end }}
+			{{ if .IsDateTime }}
+				{{.Name}}() time.Time
+				Set{{.Name}}(newValue time.Time)
+			{{ end }}
+		{{ end }}
+	}
+
+{{ end }}
+
 // DbContext core
 //////
 
