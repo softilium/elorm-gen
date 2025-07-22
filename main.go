@@ -217,7 +217,7 @@ func enrichCol(col *EntityColumn, ent *Entity, ctx *Context) {
 		}
 	}
 
-	if col.IsString && (col.Len < 1 || col.Len > 512) {
-		panic(fmt.Sprintf("Len for string field %s should be in 1.512. Entity name %s\n\r", col.Name, ent.ObjectName))
+	if col.IsString && (col.Len < 1 || col.Len > 4096) {
+		panic(fmt.Sprintf("Len for string field %s should be in 1.4096. Entity name %s\n\r", col.Name, ent.ObjectName))
 	}
 }
