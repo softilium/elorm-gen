@@ -35,12 +35,13 @@ type Fragment struct {
 }
 
 type Entity struct {
-	Owner      *Context
-	ObjectName string
-	TableName  string
-	Fragments  []string
-	Columns    []*EntityColumn
-	Indexes    []*Index
+	Owner         *Context
+	ObjectName    string
+	TableName     string
+	UseSoftDelete bool
+	Fragments     []string
+	Columns       []*EntityColumn
+	Indexes       []*Index
 }
 
 type EntityColumn struct {

@@ -66,6 +66,11 @@
         "TableName": {
           "type": "string"
         },
+        "UseSoftDelete": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, the entity will use soft delete mechanism"
+        },
         "Fragments": {
           "type": "array",
           "items": {

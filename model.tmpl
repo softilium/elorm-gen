@@ -225,6 +225,8 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 		return nil, err
 	}
 
+	r.{{.ObjectName}}Def.EntityDef.UseSoftDelete = {{.UseSoftDelete}}
+
 	{{ if .Fragments }}
 		r.{{.ObjectName}}Def.Fragments = make([]string, 0)
 		frg = []string{}
@@ -265,23 +267,23 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 
 {{ range .Entities }}
 
-func (T *DbContext) Create{{.ObjectName}}() (*{{.ObjectName}}, error) {
-	r, err := T.CreateEntityWrapped(T.{{.ObjectName}}Def.EntityDef)
-	if err != nil {
-		return nil, err
+	func (T *DbContext) Create{{.ObjectName}}() (*{{.ObjectName}}, error) {
+		r, err := T.CreateEntityWrapped(T.{{.ObjectName}}Def.EntityDef)
+		if err != nil {
+			return nil, err
+		}
+		rt := r.(*{{.ObjectName}})
+		return rt, nil
 	}
-	rt := r.(*{{.ObjectName}})
-	return rt, nil
-}
 
-func (T *DbContext) Load{{.ObjectName}}(Ref string) (*{{.ObjectName}}, error) {
-	r, err := T.LoadEntityWrapped(Ref)
-	if err != nil {
-		return nil, err
+	func (T *DbContext) Load{{.ObjectName}}(Ref string) (*{{.ObjectName}}, error) {
+		r, err := T.LoadEntityWrapped(Ref)
+		if err != nil {
+			return nil, err
+		}
+		rt := r.(*{{.ObjectName}})
+		return rt, nil
 	}
-	rt := r.(*{{.ObjectName}})
-	return rt, nil
-}
 
 {{ end }}
 
