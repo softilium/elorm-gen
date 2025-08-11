@@ -247,7 +247,7 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 	r.{{ $e.ObjectName }}Def.IsDeleted = r.{{ .ObjectName }}Def.FieldDefByName("IsDeleted")
 	r.{{ $e.ObjectName }}Def.DataVersion = r.{{ .ObjectName }}Def.FieldDefByName("DataVersion")
 	{{ range .Columns }}
-	r.{{ $e.ObjectName}}Def.{{.Name}}, _ ={{ if .IsString }}r.{{ $e.ObjectName}}Def.AddStringFieldDef("{{.Name}}", {{.Len}}, ""){{ end }}{{ if .IsRef }}r.{{ $e.ObjectName}}Def.AddRefFieldDef("{{.Name}}", r.{{.RefTypeName}}Def.EntityDef){{ end }}{{ if .IsBool }}r.{{.Owner.ObjectName}}Def.AddBoolFieldDef("{{.Name}}", false){{ end }}{{ if .IsInt }}r.{{.Owner.ObjectName}}Def.AddIntFieldDef("{{.Name}}", 0){{end}}{{if .IsNumeric}}r.{{$e.ObjectName}}Def.AddNumericFieldDef("{{.Name}}", {{.Precision}},{{.Scale}}, 0){{end}}{{if .IsDateTime}}r.{{$e.ObjectName}}Def.AddDateTimeFieldDef("{{.Name}}"){{end}}{{end}}
+	r.{{ $e.ObjectName}}Def.{{.Name}}, _ ={{ if .IsString }}r.{{ $e.ObjectName}}Def.AddStringFieldDef("{{.Name}}", {{.Len}}){{ end }}{{ if .IsRef }}r.{{ $e.ObjectName}}Def.AddRefFieldDef("{{.Name}}", r.{{.RefTypeName}}Def.EntityDef){{ end }}{{ if .IsBool }}r.{{.Owner.ObjectName}}Def.AddBoolFieldDef("{{.Name}}"){{ end }}{{ if .IsInt }}r.{{.Owner.ObjectName}}Def.AddIntFieldDef("{{.Name}}"){{end}}{{if .IsNumeric}}r.{{$e.ObjectName}}Def.AddNumericFieldDef("{{.Name}}", {{.Precision}},{{.Scale}}){{end}}{{if .IsDateTime}}r.{{$e.ObjectName}}Def.AddDateTimeFieldDef("{{.Name}}"){{end}}{{end}}
 
 	r.{{.ObjectName}}Def.Wrap = func(source *elorm.Entity) any { return &{{.ObjectName}}{Entity: source} }
 
