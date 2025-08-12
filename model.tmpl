@@ -253,7 +253,7 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 
 	{{ range .Indexes }}
 		err = r.{{$e.ObjectName}}Def.AddIndex({{.Unique}},
-		 {{ range .Columns }}*r.{{$e.ObjectName}}Def.{{.}},{{ end}}
+		 {{ range .Columns }}r.{{$e.ObjectName}}Def.{{.}},{{ end}}
 		)
 		if err != nil {
 			return nil, err
