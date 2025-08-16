@@ -225,7 +225,7 @@ func CreateDbContext(dbDialect string, connectionString string) (*DbContext, err
 		return nil, err
 	}
 
-	r.{{.ObjectName}}Def.EntityDef.UseSoftDelete = {{.UseSoftDelete}}
+	r.{{.ObjectName}}Def.UseSoftDelete = {{.UseSoftDelete}}
 
 	{{ if .Fragments }}
 		r.{{.ObjectName}}Def.Fragments = make([]string, 0)
